@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xtellix — Global Non-Linear Optimization</title>
+    <meta name="description" content="Global optimization at 100M+ variables. Find the actual optimum, not a local one. 778,000× faster on Griewank.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #030304;
+            --bg-secondary: #0a0a0c;
+            --bg-tertiary: #101014;
+            --bg-card: #0d0d10;
+            --text-primary: #f0f0f3;
+            --text-secondary: #8a8a95;
+            --text-muted: #55555f;
+            --accent: #00ffcc;
+            --accent-secondary: #00cc99;
+            --accent-dim: rgba(0, 255, 204, 0.08);
+            --accent-glow: rgba(0, 255, 204, 0.3);
+            --danger: #ff2244;
+            --danger-dim: rgba(255, 34, 68, 0.1);
+            --danger-glow: rgba(255, 34, 68, 0.3);
+            --gold: #ffd700;
+            --border: #1a1a22;
+            --border-light: #28283a;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+            --font-serif: 'Instrument Serif', serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Gradient overlay background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 0%, rgba(0, 255, 204, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(255, 34, 68, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 0;
+            backdrop-filter: blur(16px);
+            background: rgba(3, 3, 4, 0.9);
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-mono);
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-link {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            font-family: var(--font-mono);
+            font-size: 0.8125rem;
+            padding: 10px 20px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .nav-cta:hover {
+            box-shadow: 0 0 24px var(--accent-glow);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 180px 0 120px;
+            position: relative;
+        }
+
+        .hero-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 32px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-label::before {
+            content: '';
+            width: 32px;
+            height: 1px;
+            background: var(--accent);
+        }
+
+        .hero-headline {
+            font-family: var(--font-sans);
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -0.03em;
+            margin-bottom: 64px;
+            max-width: 800px;
+        }
+
+        .hero-headline em {
+            font-family: var(--font-serif);
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        /* The Comparison Cards */
+        .hero-comparison {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 24px;
+            align-items: center;
+            margin-bottom: 64px;
+        }
+
+        .comparison-card {
+            padding: 40px;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .comparison-card.loser {
+            background: var(--danger-dim);
+            border-color: rgba(255, 34, 68, 0.2);
+        }
+
+        .comparison-card.winner {
+            background: var(--accent-dim);
+            border-color: rgba(0, 255, 204, 0.2);
+        }
+
+        .comparison-card-label {
+            font-family: var(--font-mono);
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 24px;
+        }
+
+        .comparison-card.loser .comparison-card-label {
+            color: var(--danger);
+        }
+
+        .comparison-card.winner .comparison-card-label {
+            color: var(--accent);
+        }
+
+        .comparison-time {
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 10vw, 7rem);
+            line-height: 0.9;
+            letter-spacing: 0.02em;
+            margin-bottom: 8px;
+        }
+
+        .comparison-card.loser .comparison-time {
+            color: var(--danger);
+        }
+
+        .comparison-card.winner .comparison-time {
+            color: var(--accent);
+        }
+
+        .comparison-time-unit {
+            font-family: var(--font-sans);
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            display: block;
+        }
+
+        .comparison-solution {
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .comparison-solution-label {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .comparison-solution-value {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .comparison-card.loser .comparison-solution-value {
+            color: var(--danger);
+        }
+
+        .comparison-card.winner .comparison-solution-value {
+            color: var(--accent);
+        }
+
+        .comparison-solution-note {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .comparison-card.loser .comparison-solution-note {
+            color: var(--danger);
+            opacity: 0.8;
+        }
+
+        .comparison-card.winner .comparison-solution-note {
+            color: var(--accent);
+            opacity: 0.8;
+        }
+
+        .comparison-vs {
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .comparison-hardware {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 16px;
+        }
+
+        /* Speedup callout */
+        .speedup-callout {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .speedup-number {
+            font-family: var(--font-display);
+            font-size: clamp(5rem, 15vw, 12rem);
+            line-height: 1;
+            background: linear-gradient(135deg, var(--accent) 0%, #00ffaa 50%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.02em;
+        }
+
+        .speedup-label {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-top: 8px;
+        }
+
+        /* Hero CTA */
+        .hero-cta-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            padding: 20px 40px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 60px var(--accent-glow);
+        }
+
+        .btn-primary svg {
+            transition: transform 0.2s ease;
+        }
+
+        .btn-primary:hover svg {
+            transform: translateX(4px);
+        }
+
+        .hero-note {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .hero-note strong {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Rotating Industry Messages */
+        .industry-carousel {
+            padding: 100px 0;
+            border-top: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .industry-carousel-inner {
+            text-align: center;
+        }
+
+        .industry-slide {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .industry-slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .industry-label {
+            font-family: var(--font-mono);
+            font-size: 0.6875rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 24px;
+        }
+
+        .industry-headline {
+            font-size: clamp(1.5rem, 3vw, 2.25rem);
+            font-weight: 600;
+            line-height: 1.3;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .industry-headline em {
+            font-family: var(--font-serif);
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .industry-description {
+            font-size: 1.0625rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .industry-nav {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 48px;
+        }
+
+        .industry-nav-btn {
+            font-family: var(--font-mono);
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 10px 18px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .industry-nav-btn:hover {
+            border-color: var(--border-light);
+            color: var(--text-secondary);
+        }
+
+        .industry-nav-btn.active {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Pain Section */
+        .pain {
+            padding: 120px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .pain-header {
+            margin-bottom: 64px;
+        }
+
+        .section-label {
+            font-family: var(--font-mono);
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 16px;
+        }
+
+        .pain h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            max-width: 600px;
+            line-height: 1.3;
+        }
+
+        .pain h2 em {
+            font-family: var(--font-serif);
+            font-style: italic;
+            color: var(--danger);
+        }
+
+        .pain-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .pain-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 32px;
+            position: relative;
+            transition: border-color 0.3s ease;
+        }
+
+        .pain-card:hover {
+            border-color: var(--border-light);
+        }
+
+        .pain-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--danger) 0%, transparent 100%);
+            opacity: 0.5;
+        }
+
+        .pain-card-emotion {
+            font-family: var(--font-mono);
+            font-size: 0.6875rem;
+            color: var(--danger);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+
+        .pain-card h3 {
+            font-size: 1.0625rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .pain-card p {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* What Xtellix Does */
+        .capabilities {
+            padding: 120px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .capabilities h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .capabilities > .container > p {
+            color: var(--text-secondary);
+            font-size: 1.0625rem;
+            margin-bottom: 64px;
+            max-width: 600px;
+        }
+
+        .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+        }
+
+        .capability-item {
+            background: var(--bg-primary);
+            padding: 40px 32px;
+            transition: background 0.3s ease;
+        }
+
+        .capability-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .capability-icon {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 16px;
+            line-height: 1;
+        }
+
+        .capability-item h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .capability-item p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Variable Types Bar */
+        .variable-types {
+            padding: 60px 0;
+            border-top: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .variable-types .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 48px;
+            flex-wrap: wrap;
+        }
+
+        .variable-types-text h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .variable-types-text p {
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+        }
+
+        .variable-types-list {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .variable-type-tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 10px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .variable-type-tag svg {
+            width: 14px;
+            height: 14px;
+            color: var(--accent);
+        }
+
+        /* Benchmark Section */
+        .benchmarks {
+            padding: 120px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .benchmarks h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .benchmarks > .container > p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 48px;
+            max-width: 600px;
+        }
+
+        .benchmark-table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 24px;
+        }
+
+        .benchmark-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .benchmark-table th,
+        .benchmark-table td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .benchmark-table th {
+            font-family: var(--font-mono);
+            font-weight: 500;
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            background: var(--bg-secondary);
+        }
+
+        .benchmark-table td {
+            font-family: var(--font-mono);
+        }
+
+        .benchmark-table td:first-child {
+            color: var(--text-secondary);
+        }
+
+        .benchmark-table .solver-other {
+            color: var(--text-muted);
+        }
+
+        .benchmark-table .solver-xtellix {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .benchmark-table .solution-bad {
+            color: var(--danger);
+        }
+
+        .benchmark-table .solution-good {
+            color: var(--accent);
+        }
+
+        .benchmark-table tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        .benchmark-table tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .benchmark-table .highlight-row {
+            background: var(--accent-dim);
+        }
+
+        .benchmark-table .highlight-row:hover {
+            background: rgba(0, 255, 204, 0.12);
+        }
+
+        .benchmark-note {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .benchmark-note svg {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .benchmark-note a {
+            color: var(--text-secondary);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .benchmark-note a:hover {
+            color: var(--accent);
+        }
+
+        /* Who needs this */
+        .who-needs {
+            padding: 120px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .who-needs h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 64px;
+        }
+
+        .who-needs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .who-needs-item {
+            padding: 32px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .who-needs-item:hover {
+            border-color: var(--border-light);
+            transform: translateY(-4px);
+        }
+
+        .who-needs-item h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .who-needs-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .who-needs-item p {
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .who-needs-pain {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--danger);
+            padding: 8px 12px;
+            background: var(--danger-dim);
+            display: inline-block;
+        }
+
+        /* How it works */
+        .how-it-works {
+            padding: 120px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .how-it-works h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .how-it-works > .container > p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 48px;
+            max-width: 500px;
+        }
+
+        .code-window {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            max-width: 700px;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 18px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border-light);
+        }
+
+        .code-dot.red { background: #ff5f57; }
+        .code-dot.yellow { background: #febc2e; }
+        .code-dot.green { background: #28c840; }
+
+        .code-title {
+            margin-left: 12px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .code-body {
+            padding: 24px;
+            font-family: var(--font-mono);
+            font-size: 0.8125rem;
+            line-height: 1.9;
+            overflow-x: auto;
+        }
+
+        .code-line {
+            display: flex;
+            gap: 20px;
+        }
+
+        .code-line-number {
+            color: var(--text-muted);
+            user-select: none;
+            min-width: 24px;
+            text-align: right;
+            opacity: 0.5;
+        }
+
+        .code-content {
+            flex: 1;
+        }
+
+        .code-keyword { color: #ff79c6; }
+        .code-function { color: #50fa7b; }
+        .code-string { color: #f1fa8c; }
+        .code-comment { color: var(--text-muted); }
+        .code-variable { color: #8be9fd; }
+        .code-number { color: #bd93f9; }
+
+        /* Origin Story */
+        .origin-story {
+            padding: 120px 0;
+            border-top: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .origin-story-inner {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 64px;
+            align-items: center;
+        }
+
+        .origin-story blockquote {
+            font-family: var(--font-serif);
+            font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+            font-style: italic;
+            line-height: 1.6;
+            color: var(--text-primary);
+            margin-bottom: 32px;
+        }
+
+        .origin-story blockquote em {
+            color: var(--accent);
+            font-style: normal;
+        }
+
+        .origin-story-author {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .author-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .author-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .credibility-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .badge {
+            padding: 20px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+        }
+
+        .badge-label {
+            font-family: var(--font-mono);
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .badge-name {
+            font-weight: 600;
+            font-size: 0.9375rem;
+        }
+
+        /* Get Started */
+        .get-started {
+            padding: 100px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .get-started-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .get-started-item {
+            padding: 32px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .get-started-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .get-started-item h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .get-started-item code {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            padding: 8px 16px;
+            background: var(--bg-primary);
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .get-started-item p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 160px 0;
+            border-top: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 1000px;
+            height: 1000px;
+            background: radial-gradient(circle, var(--accent-dim) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .cta-content {
+            text-align: center;
+            position: relative;
+        }
+
+        .cta-section h2 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+        }
+
+        .cta-section h2 em {
+            font-family: var(--font-serif);
+            font-style: italic;
+        }
+
+        .cta-section > .container > p {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            margin-bottom: 48px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-mono);
+            font-size: 1.0625rem;
+            padding: 20px 44px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 80px var(--accent-glow);
+        }
+
+        .cta-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-mono);
+            font-size: 1.0625rem;
+            padding: 20px 44px;
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .cta-secondary:hover {
+            border-color: var(--text-muted);
+            background: var(--bg-secondary);
+        }
+
+        .cta-note {
+            margin-top: 32px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        footer .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-text {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .footer-contact {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-contact a {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-contact a:hover {
+            color: var(--accent);
+        }
+
+        .footer-divider {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Scroll animations */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 1000px) {
+            .hero-comparison {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .comparison-vs {
+                text-align: center;
+                padding: 8px 0;
+            }
+
+            .capabilities-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .who-needs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pain-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .variable-types .container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .variable-types-list {
+                justify-content: center;
+            }
+
+            .industry-nav {
+                flex-wrap: wrap;
+            }
+
+            .origin-story-inner {
+                grid-template-columns: 1fr;
+                gap: 48px;
+            }
+
+            .credibility-badges {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .badge {
+                flex: 1;
+                min-width: 150px;
+            }
+
+            .get-started-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero {
+                padding: 140px 0 80px;
+            }
+
+            .industry-carousel, .pain, .capabilities, .benchmarks, .who-needs, .how-it-works, .cta-section {
+                padding: 80px 0;
+            }
+
+            .capabilities-grid,
+            .who-needs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .benchmark-table {
+                min-width: 700px;
+            }
+
+            footer .container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-contact {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .footer-divider {
+                display: none;
+            }
+
+            .footer-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .cta-actions {
+                flex-direction: column;
+            }
+
+            .cta-primary, .cta-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .comparison-time {
+                font-size: 4rem;
+            }
+
+            .speedup-number {
+                font-size: 5rem;
+            }
+
+            .industry-nav-btn {
+                font-size: 0.625rem;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+
+    <nav>
+        <div class="container">
+            <a href="#" class="logo">
+                <div class="logo-icon"></div>
+                xtellix
+            </a>
+            <div class="nav-links">
+                <a href="#benchmarks" class="nav-link">Benchmarks</a>
+                <a href="#who-needs" class="nav-link">Use Cases</a>
+                <a href="#demo" class="nav-cta">Request Demo</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-label">Global Non-Linear Optimization</div>
+            
+            <h1 class="hero-headline">
+                They ran for <em>9 days</em> and got the wrong answer.<br>
+                We solved it in <em>1 second</em>.
+            </h1>
+
+            <div class="hero-comparison">
+                <div class="comparison-card loser">
+                    <div class="comparison-card-label">Leading Commercial NLP Solver (16 cores)</div>
+                    <span class="comparison-time">9.2</span>
+                    <span class="comparison-time-unit">days</span>
+                    <div class="comparison-solution">
+                        <div class="comparison-solution-label">Solution found</div>
+                        <div class="comparison-solution-value">21,000</div>
+                        <div class="comparison-solution-note">Stuck in local optimum</div>
+                    </div>
+                    <div class="comparison-hardware">794,202 seconds wall time</div>
+                </div>
+
+                <div class="comparison-vs">vs</div>
+
+                <div class="comparison-card winner">
+                    <div class="comparison-card-label">Xtellix</div>
+                    <span class="comparison-time">1.02</span>
+                    <span class="comparison-time-unit">seconds</span>
+                    <div class="comparison-solution">
+                        <div class="comparison-solution-label">Solution found</div>
+                        <div class="comparison-solution-value">≈ 0</div>
+                        <div class="comparison-solution-note">Global optimum ✓</div>
+                    </div>
+                    <div class="comparison-hardware">10 complete runs</div>
+                </div>
+            </div>
+
+            <div class="speedup-callout">
+                <div class="speedup-number">778,000×</div>
+                <div class="speedup-label">Faster · Correct Answer</div>
+            </div>
+
+            <div class="hero-cta-section">
+                <a href="#demo" class="btn-primary">
+                    Run Your Problem
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <p class="hero-note">
+                    <strong>Griewank function, 100,000 variables, double precision.</strong><br>
+                    The global optimum is 0. The commercial solver didn't just lose on time—it got the wrong answer.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="industry-carousel">
+        <div class="container">
+            <div class="industry-carousel-inner">
+                <!-- Aerospace -->
+                <div class="industry-slide active" data-industry="aerospace">
+                    <div class="industry-label">Aerospace & Defense</div>
+                    <h2 class="industry-headline">Your trajectory optimizer finds <em>a</em> path.<br>Not the <em>fuel-optimal</em> one.</h2>
+                    <p class="industry-description">SNOPT and IPOPT converge to local minima. You're burning fuel—and budget—on suboptimal maneuvers. Xtellix finds the true optimal trajectory in seconds.</p>
+                </div>
+
+                <!-- Chip Design -->
+                <div class="industry-slide" data-industry="chip">
+                    <div class="industry-label">Analog & RF Chip Design</div>
+                    <h2 class="industry-headline">You're tuning 50 parameters with <em>gradient descent</em>.<br>It's not finding the best circuit.</h2>
+                    <p class="industry-description">Local optimizers get stuck in the first valley they find. Tape-out costs $10M+. Xtellix finds globally optimal parameters—before you commit to silicon.</p>
+                </div>
+
+                <!-- Energy -->
+                <div class="industry-slide" data-industry="energy">
+                    <div class="industry-label">Energy & Grid</div>
+                    <h2 class="industry-headline">AC-OPF is non-convex.<br>That's why you're using <em>DC approximations</em>.</h2>
+                    <p class="industry-description">Everyone knows DC-OPF leaves 2-5% efficiency on the table. On a billion-dollar fuel budget, that's $20-50M. Xtellix solves the real AC equations.</p>
+                </div>
+
+                <!-- Finance -->
+                <div class="industry-slide" data-industry="finance">
+                    <div class="industry-label">Quantitative Finance</div>
+                    <h2 class="industry-headline">Your calibration is <em>close enough</em>.<br>But wrong prices mean wrong trades.</h2>
+                    <p class="industry-description">Volatility surfaces, exotic options, non-convex risk—you've accepted calibration error as normal. Xtellix finds the exact fit, in real-time.</p>
+                </div>
+
+                <!-- Robotics -->
+                <div class="industry-slide" data-industry="robotics">
+                    <div class="industry-label">Robotics & Motion Planning</div>
+                    <h2 class="industry-headline">Local planners produce <em>feasible</em> paths.<br>Not <em>optimal</em> ones.</h2>
+                    <p class="industry-description">Jerky motion. Wasted energy. Suboptimal cycle times. MPC with local solvers is leaving performance on the table. Xtellix finds globally smooth trajectories.</p>
+                </div>
+
+                <!-- Scientific -->
+                <div class="industry-slide" data-industry="scientific">
+                    <div class="industry-label">Scientific Computing</div>
+                    <h2 class="industry-headline">You've been <em>simplifying the model</em><br>to make it tractable.</h2>
+                    <p class="industry-description">Molecular optimization, materials design, inverse problems—the search spaces are astronomical. Xtellix handles 100M+ variables at full resolution.</p>
+                </div>
+
+                <div class="industry-nav">
+                    <button class="industry-nav-btn active" data-industry="aerospace">Aerospace</button>
+                    <button class="industry-nav-btn" data-industry="chip">Chip Design</button>
+                    <button class="industry-nav-btn" data-industry="energy">Energy</button>
+                    <button class="industry-nav-btn" data-industry="finance">Finance</button>
+                    <button class="industry-nav-btn" data-industry="robotics">Robotics</button>
+                    <button class="industry-nav-btn" data-industry="scientific">Scientific</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pain">
+        <div class="container">
+            <div class="pain-header animate-on-scroll">
+                <div class="section-label">The Reality</div>
+                <h2>Gradient methods find <em>a</em> solution. You need <em>the</em> solution.</h2>
+            </div>
+            <div class="pain-grid">
+                <div class="pain-card animate-on-scroll">
+                    <div class="pain-card-emotion">False Confidence</div>
+                    <h3>"The solver converged. It must be optimal."</h3>
+                    <p>Convergence doesn't mean global. Your solver found a valley—but there's a deeper one it never explored. You're shipping suboptimal and don't know it.</p>
+                </div>
+                <div class="pain-card animate-on-scroll">
+                    <div class="pain-card-emotion">Wasted Compute</div>
+                    <h3>"We ran it for a week and it still wasn't done."</h3>
+                    <p>Global solvers like BARON use branch-and-bound. At real-world scale, they don't finish. You gave up and used a local method instead.</p>
+                </div>
+                <div class="pain-card animate-on-scroll">
+                    <div class="pain-card-emotion">Quiet Compromise</div>
+                    <h3>"We linearized it to make it solvable."</h3>
+                    <p>Non-linear physics. Non-convex constraints. You approximated them away because the real problem was "too hard." The model runs—but it's wrong.</p>
+                </div>
+                <div class="pain-card animate-on-scroll">
+                    <div class="pain-card-emotion">Random Restart Roulette</div>
+                    <h3>"We run it 100 times and take the best."</h3>
+                    <p>That's not optimization. That's guessing. You're hoping one random start lands near the global optimum. Hope is not a strategy.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="capabilities">
+        <div class="container">
+            <div class="section-label animate-on-scroll">What Xtellix Does</div>
+            <h2 class="animate-on-scroll">Global optimization. Any scale. Any variable type.</h2>
+            <p class="animate-on-scroll">Find the actual optimum—not a local one—across continuous, integer, and binary variables. No gradients required.</p>
+            
+            <div class="capabilities-grid animate-on-scroll">
+                <div class="capability-item">
+                    <div class="capability-icon">∞</div>
+                    <h3>Non-Linear</h3>
+                    <p>Arbitrary objective functions. Non-convex. Multimodal. No restrictions.</p>
+                </div>
+                <div class="capability-item">
+                    <div class="capability-icon">◉</div>
+                    <h3>Global</h3>
+                    <p>Finds the true optimum, not just a local minimum.</p>
+                </div>
+                <div class="capability-item">
+                    <div class="capability-icon">10⁸</div>
+                    <h3>Massive Scale</h3>
+                    <p>100 million+ variables. Problems others can't even attempt.</p>
+                </div>
+                <div class="capability-item">
+                    <div class="capability-icon">≡</div>
+                    <h3>Deterministic</h3>
+                    <p>Same answer every time. Auditable. Reproducible.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="variable-types">
+        <div class="container">
+            <div class="variable-types-text">
+                <h3>One solver. Every variable type.</h3>
+                <p>Continuous, integer, binary, mixed—same API, same speed.</p>
+            </div>
+            <div class="variable-types-list">
+                <div class="variable-type-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Continuous
+                </div>
+                <div class="variable-type-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Integer
+                </div>
+                <div class="variable-type-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Binary
+                </div>
+                <div class="variable-type-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Mixed
+                </div>
+                <div class="variable-type-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    64-bit Precision
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="benchmarks" id="benchmarks">
+        <div class="container">
+            <div class="section-label animate-on-scroll">Benchmarks</div>
+            <h2 class="animate-on-scroll">Standard test functions. Unprecedented results.</h2>
+            <p class="animate-on-scroll">These are established non-linear optimization benchmarks with known global optima. All results reproducible.</p>
+
+            <div class="benchmark-table-wrapper animate-on-scroll">
+                <table class="benchmark-table">
+                    <thead>
+                        <tr>
+                            <th>Function</th>
+                            <th>Variables</th>
+                            <th>Global Optimum</th>
+                            <th>IPOPT</th>
+                            <th>Commercial NLP</th>
+                            <th>Xtellix</th>
+                            <th>Xtellix Solution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-row">
+                            <td>Griewank</td>
+                            <td>100,000</td>
+                            <td>0</td>
+                            <td class="solver-other">Local only</td>
+                            <td class="solver-other">9.2 days → 21,000</td>
+                            <td class="solver-xtellix">1.02s</td>
+                            <td class="solution-good">3.45e-13 ✓</td>
+                        </tr>
+                        <tr>
+                            <td>Griewank</td>
+                            <td>100,000,000</td>
+                            <td>0</td>
+                            <td class="solver-other">—</td>
+                            <td class="solver-other">—</td>
+                            <td class="solver-xtellix">&lt;10s (10 runs)</td>
+                            <td class="solution-good">≈ 0 ✓</td>
+                        </tr>
+                        <tr>
+                            <td>Rastrigin</td>
+                            <td>100,000</td>
+                            <td>0</td>
+                            <td class="solver-other">Local only</td>
+                            <td class="solver-other">Local only</td>
+                            <td class="solver-xtellix">Coming soon</td>
+                            <td class="solution-good">—</td>
+                        </tr>
+                        <tr>
+                            <td>Ackley</td>
+                            <td>100,000</td>
+                            <td>0</td>
+                            <td class="solver-other">Local only</td>
+                            <td class="solver-other">Local only</td>
+                            <td class="solver-xtellix">Coming soon</td>
+                            <td class="solution-good">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="benchmark-note animate-on-scroll">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+                <span>Commercial NLP solver ran with 16 cores and default settings. IPOPT 3.14. "Local only" = converged to local optimum, not global. <a href="mailto:benchmarks@xtellix.net">Request full methodology</a></span>
+            </div>
+        </div>
+    </section>
+
+    <section class="who-needs" id="who-needs">
+        <div class="container">
+            <div class="section-label animate-on-scroll">Who Needs This</div>
+            <h2 class="animate-on-scroll">If your solver finds local optima, you're leaving value on the table.</h2>
+
+            <div class="who-needs-grid">
+                <div class="who-needs-item animate-on-scroll">
+                    <h3>
+                        <span class="who-needs-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                            </svg>
+                        </span>
+                        Aerospace & Defense
+                    </h3>
+                    <p>Trajectory optimization for satellites, missiles, re-entry vehicles. Fuel is money. Local optima waste it.</p>
+                    <span class="who-needs-pain">SNOPT finds suboptimal paths</span>
+                </div>
+
+                <div class="who-needs-item animate-on-scroll">
+                    <h3>
+                        <span class="who-needs-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2"/>
+                                <path d="M16 3h-8l-2 4h12l-2-4z"/>
+                            </svg>
+                        </span>
+                        Chip Design
+                    </h3>
+                    <p>Circuit parameter tuning across 50+ dimensions. Better parameters = better chips.</p>
+                    <span class="who-needs-pain">HSPICE + gradient methods get stuck</span>
+                </div>
+
+                <div class="who-needs-item animate-on-scroll">
+                    <h3>
+                        <span class="who-needs-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
+                        </span>
+                        Energy & Grid
+                    </h3>
+                    <p>AC optimal power flow is non-convex. Everyone uses DC approximations. That costs money.</p>
+                    <span class="who-needs-pain">DC-OPF loses 2-5% efficiency</span>
+                </div>
+
+                <div class="who-needs-item animate-on-scroll">
+                    <h3>
+                        <span class="who-needs-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </span>
+                        Quant Finance
+                    </h3>
+                    <p>Model calibration, non-convex risk, exotic options. Wrong calibration = wrong prices.</p>
+                    <span class="who-needs-pain">Accept calibration error as "normal"</span>
+                </div>
+
+                <div class="who-needs-item animate-on-scroll">
+                    <h3>
+                        <span class="who-needs-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
+                            </svg>
+                        </span>
+                        Robotics
+                    </h3>
+                    <p>Trajectory planning with non-convex constraints. Local planners produce jerky, suboptimal motion.</p>
+                    <span class="who-needs-pain">Accept "good enough" paths</span>
+                </div>
+
+                <div class="who-needs-item animate-on-scroll">
+                    <h3>
+                        <span class="who-needs-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                            </svg>
+                        </span>
+                        Scientific Computing
+                    </h3>
+                    <p>Molecular optimization, materials design, inverse problems. Search spaces are astronomical.</p>
+                    <span class="who-needs-pain">Sample randomly, hope for the best</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <div class="container">
+            <div class="section-label animate-on-scroll">Integration</div>
+            <h2 class="animate-on-scroll">Define your function. Get the global optimum.</h2>
+            <p class="animate-on-scroll">No gradients. No Hessians. Just your objective function.</p>
+
+            <div class="code-window animate-on-scroll">
+                <div class="code-header">
+                    <div class="code-dot red"></div>
+                    <div class="code-dot yellow"></div>
+                    <div class="code-dot green"></div>
+                    <span class="code-title">optimize.py</span>
+                </div>
+                <div class="code-body">
+                    <div class="code-line">
+                        <span class="code-line-number">1</span>
+                        <span class="code-content"><span class="code-keyword">from</span> <span class="code-variable">xtellix</span> <span class="code-keyword">import</span> Solver</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="code-line-number">2</span>
+                        <span class="code-content"></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="code-line-number">3</span>
+                        <span class="code-content"><span class="code-keyword">def</span> <span class="code-function">griewank</span>(x):</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="code-line-number">4</span>
+                        <span class="code-content">    <span class="code-comment"># 100,000 variables, highly multimodal</span></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="code-line-number">5</span>
+                        <span class="code-content">    <span class="code-keyword">return</span> sum(x**<span class="code-number">2</span>)/<span class="code-number">4000</span> - prod(cos(x/sqrt(i))) + <span class="code-number">1</span></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="code-line-number">6</span>
+                        <span class="code-content"></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="code-line-number">7</span>
+                        <span class="code-content"><span class="code-variable">solver</span> = Solver(objective=<span class="code-variable">griewank</span>, n_vars=<span class="code-number">100_000</span>)</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="code-line-number">8</span>
+                        <span class="code-content"><span class="code-variable">result</span> = solver.<span class="code-function">optimize</span>()</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="code-line-number">9</span>
+                        <span class="code-content"></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="code-line-number">10</span>
+                        <span class="code-content"><span class="code-comment"># result.objective  → 3.45e-13 (≈ 0, global optimum)</span></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="code-line-number">11</span>
+                        <span class="code-content"><span class="code-comment"># result.time       → 1.02 seconds</span></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="code-line-number">12</span>
+                        <span class="code-content"><span class="code-comment"># result.global     → True</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Origin Story -->
+    <section class="origin-story">
+        <div class="container">
+            <div class="origin-story-inner animate-on-scroll">
+                <div class="origin-story-content">
+                    <div class="section-label">Why Xtellix Exists</div>
+                    <blockquote>
+                        "The model I was working with would run for <em>5 days</em> before it reached one answer. But we don't have 5 days to wait for flood predictions—lives depend on it. So I built a new calculation procedure that reduced it to <em>2 seconds</em>."
+                    </blockquote>
+                    <div class="origin-story-author">
+                        <div class="author-name">Dr. Mark Amo-Boateng</div>
+                        <div class="author-title">Founder & CEO, Xtellix</div>
+                    </div>
+                </div>
+                <div class="origin-story-meta">
+                    <div class="credibility-badges">
+                        <div class="badge">
+                            <div class="badge-label">Backed by</div>
+                            <div class="badge-name">Oracle for Startups</div>
+                        </div>
+                        <div class="badge">
+                            <div class="badge-label">Legal Partner</div>
+                            <div class="badge-name">Troutman Pepper SEED</div>
+                        </div>
+                        <div class="badge">
+                            <div class="badge-label">Incorporated</div>
+                            <div class="badge-name">Delaware C-Corp</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Get Started -->
+    <section class="get-started">
+        <div class="container">
+            <div class="get-started-grid">
+                <div class="get-started-item animate-on-scroll">
+                    <div class="get-started-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 17l6-6-6-6M12 19h8"/>
+                        </svg>
+                    </div>
+                    <h3>Python Package</h3>
+                    <code>pip install xtellixClient</code>
+                    <p>Install and start optimizing in minutes. Full documentation on PyPI.</p>
+                </div>
+                <div class="get-started-item animate-on-scroll">
+                    <div class="get-started-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c-1.657 0-3-4.03-3-9s1.343-9 3-9m0 18c1.657 0 3-4.03 3-9s-1.343-9-3-9m-9 9a9 9 0 019-9"/>
+                        </svg>
+                    </div>
+                    <h3>REST API</h3>
+                    <code>api.xtellix.com</code>
+                    <p>Cloud-hosted optimization engine. Dedicated server per client. Enterprise SLAs.</p>
+                </div>
+                <div class="get-started-item animate-on-scroll">
+                    <div class="get-started-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 14l9-5-9-5-9 5 9 5z"/>
+                            <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                        </svg>
+                    </div>
+                    <h3>Academic License</h3>
+                    <code>Free for research</code>
+                    <p>Universities and research institutions get free access for non-commercial use.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="demo">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="animate-on-scroll">Stop settling for <em>local</em> optima.</h2>
+                <p class="animate-on-scroll">Send us your objective function. We'll show you what your current solver is missing.</p>
+                <div class="cta-actions animate-on-scroll">
+                    <a href="mailto:demo@xtellix.net?subject=Xtellix%20Demo%20Request&body=Problem%20description:%0ANumber%20of%20variables:%0ACurrent%20solver%20(if%20any):%0AWhat%20makes%20it%20non-linear:" class="cta-primary">
+                        Request Demo
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                    <a href="mailto:benchmarks@xtellix.net?subject=Benchmark%20Methodology" class="cta-secondary">
+                        Request Benchmarks
+                    </a>
+                </div>
+                <p class="cta-note animate-on-scroll">No sales calls. No demos of problems we chose. Your function, your data, your proof.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-text">© 2025 Xtellix Inc. Delaware C-Corporation.</div>
+            <div class="footer-contact">
+                <a href="mailto:hello@xtellix.com">hello@xtellix.com</a>
+                <span class="footer-divider">|</span>
+                <a href="tel:+15034463215">+1 503 446 3215</a>
+            </div>
+            <div class="footer-links">
+                <a href="https://pypi.org/project/xtellixClient/" target="_blank">PyPI</a>
+                <a href="mailto:benchmarks@xtellix.net">Benchmarks</a>
+                <a href="mailto:academic@xtellix.net">Academic License</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Industry carousel
+        const industrySlides = document.querySelectorAll('.industry-slide');
+        const industryBtns = document.querySelectorAll('.industry-nav-btn');
+        let currentIndustry = 0;
+        let industryInterval;
+
+        function showIndustry(industry) {
+            industrySlides.forEach(slide => {
+                slide.classList.remove('active');
+                if (slide.dataset.industry === industry) {
+                    slide.classList.add('active');
+                }
+            });
+            industryBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.industry === industry) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function nextIndustry() {
+            const industries = ['aerospace', 'chip', 'energy', 'finance', 'robotics', 'scientific'];
+            currentIndustry = (currentIndustry + 1) % industries.length;
+            showIndustry(industries[currentIndustry]);
+        }
+
+        function startIndustryAutoplay() {
+            industryInterval = setInterval(nextIndustry, 5000);
+        }
+
+        function resetIndustryAutoplay() {
+            clearInterval(industryInterval);
+            startIndustryAutoplay();
+        }
+
+        industryBtns.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                currentIndustry = index;
+                showIndustry(btn.dataset.industry);
+                resetIndustryAutoplay();
+            });
+        });
+
+        startIndustryAutoplay();
+
+        // Scroll animations
+        const animatedElements = document.querySelectorAll('.animate-on-scroll');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+        
+        animatedElements.forEach(el => observer.observe(el));
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
