@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xtellix — Global Non-Linear Optimization</title>
-    <meta name="description" content="Global optimization at 10 billion+ variables. Convergence is not accuracy. 778,000× faster. Runs on CPU, GPU, or edge.">
+    <meta name="description" content="Global optimization at 2 billion+ variables. Convergence is not accuracy. 8,000,000× faster. Runs on CPU, GPU, or edge.">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1361,7 +1361,7 @@
             }
 
             .benchmark-table {
-                min-width: 700px;
+                min-width: 650px;
             }
 
             .benchmark-big-number {
@@ -1445,31 +1445,31 @@
             
             <h1 class="hero-headline">
                 They waited 9 days, and <span class="verdict-bad">still converged to the wrong answer</span>.<br>
-                We found the correct answer in <span class="time-good">1 second</span>.
+                We found the correct answer in <span class="time-good">0.1 seconds</span>.
             </h1>
 
             <div class="hero-tagline">Convergence is not accuracy.</div>
 
             <div class="hero-context">
-                Same starting point. Same bounds. <strong>Known optimum = 0. They returned 21,000. We returned 6.48e-13 ≈ 0</strong>
+                Same starting point. Same bounds. <strong>Known optimum = 0. They returned 21,000. We returned 3.3e-13 ≈ 0</strong>
             </div>
 
             <p class="hero-sub">
-                Local optimizers report "converged" but they're stuck in the wrong valley. Xtellix finds the true global optimum—on CPU, GPU, or edge—at scales up to 10 billion variables.
+                Local optimizers report "converged" but they're stuck in the wrong valley. Xtellix finds the true global optimum—on CPU, GPU, or edge—tested to 2 billion variables.
             </p>
 
             <div class="proof-bar">
                 <div class="proof-item">
-                    <span class="proof-item-value">778,000×</span>
+                    <span class="proof-item-value">8,000,000×</span>
                     <span class="proof-item-label">faster</span>
                 </div>
                 <div class="proof-item">
-                    <span class="proof-item-value">10B</span>
+                    <span class="proof-item-value">2B</span>
                     <span class="proof-item-label">variables</span>
                 </div>
                 <div class="proof-item">
-                    <span class="proof-item-value">99.98%</span>
-                    <span class="proof-item-label">deterministic</span>
+                    <span class="proof-item-value">Deterministic</span>
+                    <span class="proof-item-label">same answer every time</span>
                 </div>
                 <div class="proof-badge">
                     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -1525,32 +1525,26 @@
                 <div class="benchmark-vs">vs</div>
 
                 <div class="benchmark-card winner">
-                    <div class="benchmark-card-label">Xtellix</div>
+                    <div class="benchmark-card-label">Xtellix (NVIDIA B200)</div>
                     <div class="benchmark-section">
-                        <div class="benchmark-section-label">Wait time (GPU)</div>
-                        <div class="benchmark-big-number">1.02</div>
+                        <div class="benchmark-section-label">Wait time</div>
+                        <div class="benchmark-big-number">0.09</div>
                         <div class="benchmark-unit">seconds</div>
                     </div>
                     <div class="benchmark-result">
                         <div class="benchmark-result-label">Solution found</div>
-                        <div class="benchmark-result-value">6.48e-13</div>
+                        <div class="benchmark-result-value">3.3e-13</div>
                         <div class="benchmark-result-note">≈ 0 — Global optimum ✓</div>
-                    </div>
-                    <div class="benchmark-alt">
-                        <span class="benchmark-alt-label">Single-thread CPU:</span>
-                        <span class="benchmark-alt-value">8.1 seconds</span>
                     </div>
                 </div>
             </div>
 
             <div class="benchmark-meta animate-on-scroll">
-                <div class="benchmark-speedup">778,000×</div>
+                <div class="benchmark-speedup">8,000,000×</div>
                 <div class="benchmark-speedup-label">Faster · Correct Answer</div>
                 <p class="benchmark-details">
-                    Griewank function, 100,000 variables, double precision. Same starting point and bounds.
-                    Known optimum = 0. They returned 21,000.
-                    <br><br>
-                    GPU: 1.02s (10 runs) · Single-thread CPU: 8.1s · Commercial solver: 9.2 days (16 cores)
+                    Griewank function, 100,000 variables, double precision.<br>
+                    Same starting point and bounds. Global optimum = 0.
                     <br><br>
                     <a href="mailto:benchmarks@xtellix.com">Request full methodology →</a>
                 </p>
@@ -1608,7 +1602,7 @@
                             <span class="insight-card-title">Xtellix</span>
                             <span class="insight-card-status">Global</span>
                         </div>
-                        <div class="insight-card-value">6.48e-13</div>
+                        <div class="insight-card-value">3.3e-13</div>
                         <div class="insight-card-context">≈ 0 — Actual global optimum</div>
                     </div>
                 </div>
@@ -1633,17 +1627,17 @@
                 <div class="capability-item">
                     <div class="capability-icon">∞</div>
                     <h3>Non-Linear</h3>
-                    <p>Arbitrary objectives. Non-convex. Multimodal.</p>
+                    <p>Black-box objectives. No gradients required.</p>
                 </div>
                 <div class="capability-item">
-                    <div class="capability-icon">10¹⁰</div>
-                    <h3>10B Variables</h3>
-                    <p>GPU scales to 10 billion+. No problem too large.</p>
+                    <div class="capability-icon">10⁹</div>
+                    <h3>2B+ Variables</h3>
+                    <p>Tested to 2 billion. Scales beyond.</p>
                 </div>
                 <div class="capability-item">
                     <div class="capability-icon">≡</div>
-                    <h3>99.98% Deterministic</h3>
-                    <p>Reproducible. Auditable. Consistent.</p>
+                    <h3>Deterministic</h3>
+                    <p>Same answer every time. Auditable.</p>
                 </div>
                 <div class="capability-item">
                     <div class="capability-icon">⊡</div>
@@ -1747,7 +1741,7 @@
         <div class="container">
             <div class="section-label animate-on-scroll">Benchmarks</div>
             <h2 class="benchmarks-title animate-on-scroll">Standard test functions. Unprecedented results.</h2>
-            <p class="benchmarks-intro animate-on-scroll">These are established non-linear optimization benchmarks with known global optima. All results reproducible.</p>
+            <p class="benchmarks-intro animate-on-scroll">Griewank function. Global optimum = 0. Local methods converge to wrong answers. Global methods (PyGMO) fail at scale.</p>
 
             <div class="benchmark-table-wrapper animate-on-scroll">
                 <table class="benchmark-table">
@@ -1755,49 +1749,84 @@
                         <tr>
                             <th>Function</th>
                             <th>Variables</th>
-                            <th>Global Optimum</th>
-                            <th>IPOPT</th>
                             <th>Commercial NLP</th>
-                            <th>Xtellix</th>
-                            <th>Xtellix Solution</th>
+                            <th>PyGMO (DE)</th>
+                            <th>Xtellix (B200)</th>
+                            <th>Solution</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <tr>
+                            <td>Griewank</td>
+                            <td>1,000</td>
+                            <td class="solver-other">17 min → 2.5e-12</td>
+                            <td class="solver-other">2.6 min → 8e-3</td>
+                            <td class="solver-xtellix">0.09s</td>
+                            <td class="solution-good">2.7e-15 ✓</td>
+                        </tr>
+                        <tr>
+                            <td>Griewank</td>
+                            <td>10,000</td>
+                            <td class="solver-other">16 hrs → 2.4e-10</td>
+                            <td class="solver-other">25 min → 88</td>
+                            <td class="solver-xtellix">0.08s</td>
+                            <td class="solution-good">3.3e-14 ✓</td>
+                        </tr>
                         <tr class="highlight-row">
                             <td>Griewank</td>
                             <td>100,000</td>
-                            <td>0</td>
-                            <td class="solver-other">Local only</td>
                             <td class="solver-other">9.2 days → 21,000</td>
-                            <td class="solver-xtellix">1.02s</td>
-                            <td class="solution-good">6.48e-13 ✓</td>
+                            <td class="solver-other">4.3 hrs → 23,700</td>
+                            <td class="solver-xtellix">0.09s</td>
+                            <td class="solution-good">3.3e-13 ✓</td>
+                        </tr>
+                        <tr>
+                            <td>Griewank</td>
+                            <td>1,000,000</td>
+                            <td class="solver-other">—</td>
+                            <td class="solver-other">—</td>
+                            <td class="solver-xtellix">0.13s</td>
+                            <td class="solution-good">6.0e-12 ✓</td>
+                        </tr>
+                        <tr>
+                            <td>Griewank</td>
+                            <td>10,000,000</td>
+                            <td class="solver-other">—</td>
+                            <td class="solver-other">—</td>
+                            <td class="solver-xtellix">0.32s</td>
+                            <td class="solution-good">1.2e-10 ✓</td>
                         </tr>
                         <tr>
                             <td>Griewank</td>
                             <td>100,000,000</td>
-                            <td>0</td>
                             <td class="solver-other">—</td>
                             <td class="solver-other">—</td>
-                            <td class="solver-xtellix">&lt;10s (10 runs)</td>
-                            <td class="solution-good">≈ 0 ✓</td>
+                            <td class="solver-xtellix">2.6s</td>
+                            <td class="solution-good">5.0e-9 ✓</td>
                         </tr>
                         <tr>
-                            <td>Rastrigin</td>
-                            <td>100,000</td>
-                            <td>0</td>
-                            <td class="solver-other">Local only</td>
-                            <td class="solver-other">Local only</td>
-                            <td class="solver-xtellix">Coming soon</td>
-                            <td>—</td>
+                            <td>Griewank</td>
+                            <td>500,000,000</td>
+                            <td class="solver-other">—</td>
+                            <td class="solver-other">—</td>
+                            <td class="solver-xtellix">10.9s</td>
+                            <td class="solution-good">4.2e-8 ✓</td>
                         </tr>
                         <tr>
-                            <td>Ackley</td>
-                            <td>100,000</td>
-                            <td>0</td>
-                            <td class="solver-other">Local only</td>
-                            <td class="solver-other">Local only</td>
-                            <td class="solver-xtellix">Coming soon</td>
-                            <td>—</td>
+                            <td>Griewank</td>
+                            <td>1,000,000,000</td>
+                            <td class="solver-other">—</td>
+                            <td class="solver-other">—</td>
+                            <td class="solver-xtellix">20.9s</td>
+                            <td class="solution-good">1.1e-7 ✓</td>
+                        </tr>
+                        <tr>
+                            <td>Griewank</td>
+                            <td>2,000,000,000</td>
+                            <td class="solver-other">—</td>
+                            <td class="solver-other">—</td>
+                            <td class="solver-xtellix">43.2s</td>
+                            <td class="solution-good">2.3e-7 ✓</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1808,7 +1837,7 @@
                     <circle cx="12" cy="12" r="10"/>
                     <path d="M12 16v-4M12 8h.01"/>
                 </svg>
-                <span>Commercial NLP solver ran with 16 cores and default settings. IPOPT 3.14. "Local only" = converged to local optimum, not global. <a href="mailto:benchmarks@xtellix.com">Request full methodology</a></span>
+                <span>Commercial NLP: 16 cores, 1 run. PyGMO: Differential Evolution. Xtellix: NVIDIA B200, best of 10 parallel trials. <a href="mailto:benchmarks@xtellix.com">Request full methodology</a></span>
             </p>
         </div>
     </section>
@@ -1866,15 +1895,15 @@
                     </div>
                     <div class="code-line">
                         <span class="code-line-number">10</span>
-                        <span class="code-content"><span class="code-comment"># result.objective  → 6.48e-13 (≈ 0, global optimum)</span></span>
+                        <span class="code-content"><span class="code-comment"># result.objective  → 3.3e-13 (≈ 0, global optimum)</span></span>
                     </div>
                     <div class="code-line">
                         <span class="code-line-number">11</span>
-                        <span class="code-content"><span class="code-comment"># result.time       → 1.02 seconds</span></span>
+                        <span class="code-content"><span class="code-comment"># result.time       → 0.1 seconds</span></span>
                     </div>
                     <div class="code-line">
                         <span class="code-line-number">12</span>
-                        <span class="code-content"><span class="code-comment"># result.is_global  → True</span></span>
+                        <span class="code-content"><span class="code-comment"># result.optimal   → True</span></span>
                     </div>
                 </div>
             </div>
